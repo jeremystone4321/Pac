@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<title> Gamedev Canvas Workshop</title>
+	<style>
+		*{ padding: 0; margin: 0; }
+		canvas {background: #eee; display: block; margin: 0 auto; }
+	</style>
+</head>
+<body>
+
+<canvas id="myCanvas" width="640" height="480"></canvas>
+
+<script>
+
+var canvas = document.getElementById("myCanvas");
+var context = canvas.getContext("2d");
+
+var level=[
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1],
+        [1, 3, 4, 3, 3, 3, 3, 3, 3, 3, 3, 4, 3, 1],
+        [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1],
+        [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1],
+        [1, 3, 3, 3, 3, 3, 4, 4, 3, 3, 3, 3, 3, 1],
+        [1, 3, 3, 3, 3, 3, 4, 4, 3, 3, 3, 3, 3, 1],
+        [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1],
+        [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1],
+        [1, 3, 4, 3, 3, 3, 3, 3, 3, 3, 3, 4, 3, 1],
+        [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1],
+	[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+     ];
+
+
+var grfx = new Image();
+
+
+function drawLevel() {
+	for (var v = 0; v < level.length; v++) {
+		for (var h = 0; h < level.length[v]; h++) {
+			if (level[v][h] == 1) {
+				var tile = grfx;	
+			}
+			if (level[v][h] == 2) {
+				var tile = new.createjs.Bitmap('back.png');	
+			}
+			if (level[v][h] == 3) {
+				var tile = new.createjs.Bitmap('dot.png');	
+			}
+			if (level[v][h] == 4) {
+				var tile = new.createjs.Bitmap('wall.png');	
+			}
+			ctx.drawImage(grfx, 200, 200);
+		}
+	}
+
+
+grfx.onload = function() {
+		ctx.drawImage(grfx, 20, 20);
+}
+
+
+grfx.src = "brick.png";
+
+
+
+
+</script>
+
+</body>
+</html>

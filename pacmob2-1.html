@@ -1,0 +1,1675 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<title> Paca MAn</title>
+	<style>
+		*{ padding: 0; margin: 0; }
+		canvas {background: #eee; display: block; margin: 0 auto; }
+	</style>
+</head>
+<body>
+
+<canvas id="myCanvas" width="600" height="1000"></canvas>
+
+<script>
+
+var canvas = document.getElementById("myCanvas");
+var context = canvas.getContext("2d");
+
+
+
+
+var level=[
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1],
+        [1, 3, 4, 3, 3, 3, 3, 3, 3, 3, 3, 4, 3, 1],
+        [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1],
+        [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1],
+        [1, 3, 3, 3, 3, 3, 4, 4, 3, 3, 3, 3, 3, 1],
+        [1, 3, 3, 3, 3, 3, 4, 4, 3, 3, 3, 3, 3, 1],
+        [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1],
+        [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1],
+        [1, 3, 4, 3, 3, 3, 3, 3, 3, 3, 3, 4, 3, 1],
+        [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1],
+		[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+     ];
+
+var levVerLen = level.length;
+var levHorzLen = level[0].length;
+
+var brick = new Image();
+var back = new Image();
+var dot = new Image();
+var wall = new Image();
+var pacman = new Image();
+var pacmaneat = new Image();
+var power = new Image();
+var powerone = new Image();
+var dotpink = new Image();
+var pacmanthrob = new Image();
+var pacmaneatthrob = new Image();
+var ghostpic = new Array();
+ghostpic[0] = new Image();
+ghostpic[1] = new Image();
+
+
+
+
+brick.src = "data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACJSURBVEhLY+xgEGXABioYXkMYuBRgAqxamKA0KqjgZ4SyKAbYLWD4+ApCE+98XACHBdQDoxYQBDS3gIFBRBbKGAXYAc6iAisgo/wYTaYEwagFBMGoBQQBzS0YLU0JAtwNL2DTCNh4YWXv+M0HFcILcKnHHcmQptHvn2AOEQCH+tF8QBAMdQsYGAAUexsJ/xJcmQAAAABJRU5ErkJggg==";
+back.src = "data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsIAAA7CARUoSoAAAAA0SURBVFhH7c6xDQAgDANBh/13TijYIQX3kuX2KknfrXXerwUAAAAAAAAAAAAAAAAA8DsgGSESAT8rDAeCAAAAAElFTkSuQmCC";
+dot.src = "data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsQAAA7EAZUrDhsAAAB5SURBVFhH7ZbBCoAgEETHTp76/+/sB6yFOYSH2olCpHkg7mFxH7qiBUA7xjAWzsOwgAUsYAELPH4L2saAlJWBiCzQF+5RRaQjuCseZHLOpAWUhZVc34J5BJTuVnKlHcgs/Ok1DK4KqMUD/4rnEqiVwYu4ByzwdwFgB9r2EWVo/gMYAAAAAElFTkSuQmCC";
+wall.src = "data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsQAAA7EAZUrDhsAAAFESURBVFhH7Zc7DoMwDIZNxQE4CAMDIxIHYOBADIgDMTAwMiAxcgQOwcDAgNTiylQOjyahqCz5pAhHyNbvJNjBStP0CSu6roM8z2EcR7BtG5IkoTdyuC8i83/QU6Aoik+AaZreT1W4L+J5Hln77AoYhoEsAN/3yZKD2a99oyii2T4bARiEIwvAwew5Kr4bAesgOpxZuY2As8u/RnXlds/Ags7yn+WrgH9gOY7z7PuepiJzjSBLjSzLyAKY48JRXI41j00h+if3bwEvxU3TQFVVNPsdlUIkCGjbFsqypJneGeD7H8extAQvCFtQ1zVZAK7rkqUGNp0FnoQMQQAvQpiFDmEYkqXXwA4PIc9IhSAIyNLj9q/ACDACjIDbBWDfxl5w2zD3AaEd85aqex1Dzvibr+BSAbyF4/VOhUsF8D8pfrs6BuAFnlCYpZTt3WUAAAAASUVORK5CYII=";
+pacman.src = "data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgBAMAAACBVGfHAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAG1BMVEUAAADv5LCspH4eHRZ/eV1pZE3o3apaVkL////0UIv+AAAAAXRSTlMAQObYZgAAAAFiS0dECIbelXoAAAAHdElNRQfkCQkENynkpU5LAAAAAW9yTlQBz6J3mgAAAFFJREFUKM9jYEACjIIMqEBQUACNjyoA5AsqoBgABOh8ZTQN6HwBQgYw4NFAcwNwCGCYiU1EAK8II9EiDhhGB6CLpKPHk2ACiggjelRiRjZWAAC7mQqFr1wuNgAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAyMC0wOS0wOVQwNDo1NTo0MSswMDowMHpe/S8AAAAldEVYdGRhdGU6bW9kaWZ5ADIwMjAtMDktMDlUMDQ6NTU6NDErMDA6MDALA0WTAAAAAElFTkSuQmCC";
+pacmaneat.src = "data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgBAMAAACBVGfHAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAElBMVEUAAADv5LCspH4eHRZ/eV3///9tDhXdAAAAAXRSTlMAQObYZgAAAAFiS0dEBfhv6ccAAAAHdElNRQfkCQkEOhAODrgOAAAAAW9yTlQBz6J3mgAAAE5JREFUKM/NT8kNACAIww2ocRBHcP+pjCZCwQG0vx4pVORHFCQKqFNsKLskHFo7p40fG4g2UpvkejvoDe3KjPQkZUzyjEk8FhrGLgx5hgkBVAjxvo6q8gAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAyMC0wOS0wOVQwNDo1ODoxNiswMDowMALnRnUAAAAldEVYdGRhdGU6bW9kaWZ5ADIwMjAtMDktMDlUMDQ6NTg6MTYrMDA6MDBzuv7JAAAAAElFTkSuQmCC";
+power.src = "data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsQAAA7EAZUrDhsAAACVSURBVFhH7ZW7CsAgDEVvO7l37dj//6KOXbu79QEpLSIYg5IGckDUIXiMGgcAx9XUGKlXwwVcwAXUBcSFaJ8XGr1M20ojPtUCuYVTakTYApyFUzgiNi6hZPc3nLj/Z0C6+4dSvI070JP/C0iq25dSvI0jkGbBRCW08xml5EQkR1UlEAIQI00aIc5AK2w8w564gLIAcAK25yUx8QQBywAAAABJRU5ErkJggg==";
+powerone.src = "data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOxAAADsQBlSsOGwAAAIVJREFUWEftlUEKwCAMBGNP/sRnlj6zr7EGUgqlh10RRLoDYg7RDAY1mVltYxpbzNOQgAQkIIHul7DuJaKHdJwR4dACX4XfMCJUC5DiDprnwALMpg6aDwmwxW+QdbqGEoAEeh4YB1kHnwArgeZTLUA3ZWTX+wtGs9Y1zDmCgagFEvi7gNkFGPkhRWd7AakAAAAASUVORK5CYII=";
+dotpink.src = "data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsQAAA7EAZUrDhsAAACJSURBVFhH7ZdBCoAwDARTT/2R//Ch/sNXVQMRoXjYLYUg7kAxh6QZGqxYzKxdK40lnmlIQAISkEC6wPBV3PYjooeyrRHh0AJvjXsYEWoESHMHzXNgAWZTB82HBNjmN0idXkMJQAIjF4yD1MEnwEqg+dQI0E0Z2e99C2ZDjaDWCCaiPyMJ/F3A7AQDdSFFMAcerAAAAABJRU5ErkJggg==";
+pacmanthrob.src = "data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgAgMAAAAOFJJnAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAACVBMVEUAAAD/LS3///8MEPhIAAAAAXRSTlMAQObYZgAAAAFiS0dEAmYLfGQAAAAHdElNRQfkCQkRBjKycOGOAAAAAW9yTlQBz6J3mgAAAFpJREFUGNNtkMENwDAIA+GREbIPI/RR779KSzCQVPXrZBsUIuJSSGjCAkAYCZOgILwGWMXN6pl49UrDvtX/RDJxqP1hIa0FxvE1p2UN7Lt7gx1PrHP60v6EXQ8dXiVzLgHB9QAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAyMC0wOS0wOVQxNzowNjo1MCswMDowMKombPwAAAAldEVYdGRhdGU6bW9kaWZ5ADIwMjAtMDktMDlUMTc6MDY6NTArMDA6MDDbe9RAAAAAAElFTkSuQmCC";
+pacmaneatthrob.src = "data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgBAMAAACBVGfHAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAElBMVEUAAAD/LS2spH4eHRZ/eV3///8WsY5yAAAAAXRSTlMAQObYZgAAAAFiS0dEBfhv6ccAAAAHdElNRQfkCQkRBwP6tdD1AAAAAW9yTlQBz6J3mgAAAFFJREFUKM+9kLENACEMA8MGHGIQRvj9p/oGlNj0uPPJSaxEvFfDLPTiQQAIaCgAAWnHquntKbJxPYffzwY5Mh3wacfMVHQvkl8IODH/YI83+gGChgwEayhpRgAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAyMC0wOS0wOVQxNzowNzowMyswMDowMDzsEzsAAAAldEVYdGRhdGU6bW9kaWZ5ADIwMjAtMDktMDlUMTc6MDc6MDMrMDA6MDBNsauHAAAAAElFTkSuQmCC";
+ghostpic[0].src = "data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAdVBMVEUAAAC35fggrusAouif3PYYq+oIpeloyPKH0/QAoucAo+gAAAAgICCfn5+3t7cAneEICAgATG1oaGiHh4cAoukGo+cEks8NbZcAdagDY4339/dgYGBAuu4Do+gQqOoEpOhjxvAGpOgFpOgRqOpUwe9wy/P///9Fl1r/AAAAAXRSTlMAQObYZgAAAAFiS0dEJloImLUAAAAHdElNRQfkCQsSKgTstGlrAAAAAW9yTlQBz6J3mgAAAOhJREFUOMudk4kOgyAMhsWq4OrmnLvv8/1fcSBXg7DENTH5oR+9UrNsZCwHaXkxugqNICVErXJE6OEAYiBSwGCCZElk8FkgGcJkAUgjPwEIgHpGPeY0KYI0RGzmSiyaNgXgUokGuySwUqJHbP+qYSqwjgO1FWUkwqZB3BrN5MdDYCfb6MIAFOhVo3s4mCOP7MPxZGdhA7BzvAVmAHYJHXle0BLClWZXvW2uhGEe3D+ncGGAGm5325reE5XjAfB0EYYr+lqW8dIhmJu6s7eXcu3LkR8qQbQeEheuaqVE5pGMDFTbh/yTkvsCY4EOSd3mDxUAAAAldEVYdGRhdGU6Y3JlYXRlADIwMjAtMDktMTFUMTg6NDE6NTcrMDA6MDDuQbuwAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIwLTA5LTExVDE4OjQxOjU3KzAwOjAwnxwDDAAAAABJRU5ErkJggg==";
+ghostpic[1].src = "data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAY1BMVEUAAAC35fggrusAouif3PaD0vMCo+kIpekQqOoAouloyPKH0/QYq+p4zvMAoucAo+gKpum3t7cgICAAAACfn58ICAiHh4doaGhIvO739/dgYGBAuu5hxfByzPIBoumv4vj///8ZKRsgAAAAAXRSTlMAQObYZgAAAAFiS0dEILNrPYAAAAAHdElNRQfkCQsSKDof4xZCAAAAAW9yTlQBz6J3mgAAAQhJREFUOMuFkll2wyAMRYHn1gk4tI2bofP+d1kkIQM+2NGPBbpoeJYxZNZBzQ1ycIMp9vSMjhXEduPAmAl7SIdjHfFAYKIfzz4hDEzr90sF4EQJtuKaIiWIL/0mE5KA9H3FpjEQ8QDYs1MDvJ3nZOf37LPTAByf54v6FwbGAlwFuKl/YyDsN2GaFH0gbEoJi7sxe0Um+VtNERpVBqUEGQhVDRlVkEmBWotrpQV6APDxqVpAejT2a2uGnGBaB5wbmhZWStGO6pUA3+A91ucrHfNWu59FGzaqMVZbDfyW17xhqY0gW11mzGLFg15ESdG2GAsbjwKM1XsvBT2pT3H8LT/TV6L6pbfk/QN4tBFOwV47ggAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAyMC0wOS0xMVQxODo0MDo1OCswMDowMPfLoGcAAAAldEVYdGRhdGU6bW9kaWZ5ADIwMjAtMDktMTFUMTg6NDA6NTgrMDA6MDCGlhjbAAAAAElFTkSuQmCC";
+
+var pacmanxpos = 320-96-32;
+var pacmanypos = 320-64;
+var pacmanan = 0;
+
+var pacmanxmove = 0;
+var pacmanymove = 0;
+
+var pacsmove = 0;
+
+
+var rightPressed = false;
+var leftPressed = false;
+var upPressed = false;
+var downPressed = false;
+
+var dotsleft = 0;
+
+var pacmanmoving = 0;
+
+var pacspeed = 1;
+
+var pacmanspeed=2;
+
+var paclooper=0;
+
+var special=0;
+
+var specialtime=0;
+
+var ghosts=null;
+
+var ghostalllowedmove=2;
+
+var bestlowestdots = 0;
+
+var pacrotate=4;
+
+
+document.addEventListener("keydown", keyDownHandler, false);
+document.addEventListener("keyup", keyUpHandler, false);
+
+
+
+function drawLevel() {
+
+
+	dotsleft = 0;
+	
+			context.fillStyle = "green";
+			context.fillRect(0, 0, canvas.width, canvas.height);
+	
+if (Number.isInteger(score/2)==true) {
+			context.fillStyle = "purple";
+			
+			context.fillStyle = "green";
+			context.fillRect(0, 0, canvas.width, canvas.height);
+		context.font = "30px Arial";
+			context.fillText(score, 580, 50);
+}
+
+
+	for (var v = 0; v < level.length; v++) {
+		for (var h = 0; h < level[0].length; h++) {
+			var xpos = h*32;
+			var ypos = v*32;
+			if (level[v][h] == 1) {
+				context.drawImage(brick, xpos, ypos);	
+			}
+			if (level[v][h] == 2) {
+				context.drawImage(back, xpos, ypos);	
+			}
+			if (level[v][h] == 3) {
+				if (specialtime<1){
+				context.drawImage(dot, xpos, ypos);
+					dotsleft++;
+					}
+					
+					if (specialtime>0){
+					if (special==1){
+					
+					context.drawImage(dotpink, xpos, ypos);
+					dotsleft++;
+					special =2;
+					
+					}
+					else if (special==2){
+						if (Math.random()*100>49){
+							
+					context.drawImage(dotpink, xpos, ypos);
+					dotsleft++;
+						}
+						else {
+				context.drawImage(dot, xpos, ypos);
+					dotsleft++;
+						
+						}
+					}
+					}
+					
+					
+			}
+			if (level[v][h] == 4) {
+				context.drawImage(wall, xpos, ypos);	
+			}
+			if (level[v][h] == 5) {
+				context.drawImage(power, xpos, ypos);	
+				if (colorchange()==true){
+				level[v][h] = 6;
+				}
+			}
+			else if (level[v][h] == 6) {
+				context.drawImage(powerone, xpos, ypos);	
+				if (colorchange()==true){
+				level[v][h] = 5;
+				}
+			}
+			
+		}
+		
+	}
+	
+	
+			context.fillStyle = "white";
+context.font = "30px Arial";
+context.fillText(score, 550, 300);
+
+			context.fillStyle = "white";
+context.font = "30px Arial";
+context.fillText("Score", 540, 260);
+
+			context.fillStyle = "white";
+context.font = "30px Arial";
+context.fillText(dotsleft, 550, 80);
+
+			context.fillStyle = "white";
+context.font = "30px Arial";
+context.fillText("Remain", 545, 40);
+
+
+if  (dotsleft<bestlowestdots){
+	bestlowestdots = dotsleft;
+}
+
+
+			context.fillStyle = "white";
+context.font = "30px Arial";
+context.fillText(bestlowestdots, 550, 190);
+
+			context.fillStyle = "white";
+context.font = "30px Arial";
+context.fillText("Best Dots left", 540, 150);
+
+
+
+			context.fillStyle = "white";
+context.font = "40px Arial";
+context.fillText(pacmanspeed, 550, 780);
+
+
+			context.fillStyle = "white";
+context.font = "40px Arial";
+context.fillText(Math.trunc(frame/60), 40, 780);
+
+
+	var i;
+	var z;
+	var q;
+	
+	
+		buttonpressed();
+	if (pacmanmoving!==0){
+		collision(1);
+		checkdot();
+	}
+	
+	
+	if (pacmanmoving!==0){
+	for (i=1; i < pacmanspeed; i++){
+		buttonpressed();
+		collision(1);
+		checkdot();
+		//console.log(pacsmove);
+		if (pacmanmoving==0){
+			break;
+		}
+		
+		}
+		}
+		//console.log(ghostalllowedmove);
+		
+		if (ghosts!==null){
+			
+	for (q=0; q < pacmanspeed; q++){
+				ghostalllowedmove++;
+			for (i=0; i < ghosts.length; i++){
+				if (Number.isInteger(ghostalllowedmove/2)==true || Number.isInteger(ghostalllowedmove/3)==true){
+				if (ghosts[i][6]>0){
+				
+				if (Number.isInteger(ghosts[i][6]/2)==true){
+				
+					ghostmove(i);
+				}
+				}
+					else{
+					ghostmove(i);
+					}
+			checkghost(i);
+			ghostdot(i);
+			ghosts[i][6]--;
+					z=ghostchosemove(i);
+					if (Number.isInteger(ghosts[i][0]/32)==true && Number.isInteger(ghosts[i][1]/32)==true){
+		//console.log(z.length);
+					if (z.length>0){
+						if (Math.random()*10<9){
+							ghostnewdirection(i, 1);
+							//console.log(z.length);
+						}
+					}
+					}
+					}
+				}
+			}
+			}
+		
+		
+		//console.log(Number.isInteger(ghostalllowedmove/2));
+		//console.log(ghostalllowedmove/2);
+		//console.log(ghostalllowedmove);
+		
+		if (ghosts!==null){
+			
+			for (i=0; i < ghosts.length; i++){
+				ghostdraw(i);
+				//ghostalllowedmove++;
+			}
+		
+		}
+		
+		drawpacman();
+		
+		
+	for (i=0; i < pacmanspeed; i++){
+	specialtime--;
+	
+	frame++;
+	
+	if (touchmove==1){
+		buttonintervals=0;
+	}
+	}
+	
+	//console.log(specialtime);
+	//console.log(Math.floor(Math.random()*5)-2);
+	
+	
+}
+
+function checkghost(m) {
+
+	var z = 0;
+	var zr = 0;
+	var zl = 0;
+	var q = 0;
+	var qr = 0;
+	var ql = 0;
+	
+	var px;
+	var tx;
+
+		z = (pacmanxpos)/32;
+		z = Math.round(z);
+		zr = (pacmanxpos)/32;
+		zr = Math.ceil(zr);
+		q = (pacmanypos)/32;
+		q = Math.round(q);
+		qr = (pacmanypos)/32;
+		qr = Math.ceil(qr);
+		
+		px=[q,z];
+		
+		
+		z = (ghosts[m][0])/32;
+		z = Math.round(z);
+		zr = (ghosts[m][0])/32;
+		zr = Math.ceil(zr);
+		q = (ghosts[m][1])/32;
+		q = Math.round(q);
+		qr = (ghosts[m][1])/32;
+		qr = Math.ceil(qr);
+		
+		tx=[q,z];
+		
+		//console.log(tx);
+		
+		if (px[0] == tx[0] && px[1] == tx[1] && specialtime<0 && ghosts[m][6]<0){
+		if (pacmanmoving !== 0){collision(-1);}
+			ghosts[m][6]=2;
+		//console.log(px,tx);
+			//level[q][z]=2;
+			//context.drawImage(pacmaneat, pacmanxpos-16, pacmanypos);
+			//context.drawImage(pacmaneat, pacmanxpos-32, pacmanypos+32);
+			//context.drawImage(pacmaneat, pacmanxpos-48, pacmanypos-32);
+			//context.drawImage(pacmaneat, pacmanxpos-64, pacmanypos-16);
+			var snd = new Audio("data:audio/wav;base64,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qJrx4KOQjahZxWbcZgztj2c49nKmkId44S71j0c8eV9yDK6uPRzx5X18eDvjvQ6yKo9ZSS6l//8elePK/Lf//IInrOF/FvDoADYAGBMGb7FtErm5MXMlmPAJQVgWta7Zx2go+8xJ0UiCb8LHHdftWyLJE0QIAIsI+UbXu67dZMjmgDGCGl1H+vpF4NSDckSIkk7Vd+sxEhBQMRU8j/12UIRhzSaUdQ+rQU5kGeFxm+hb1oh6pWWmv3uvmReDl0UnvtapVaIzo1jZbf/pD6ElLqSX+rUmOQNpJFa/r+sa4e/pBlAABoAAAAA3CUgShLdGIxsY7AUABPRrgCABdDuQ5GC7DqPQCgbbJUAoRSUj+NIEig0YfyWUho1VBBBA//uQZB4ABZx5zfMakeAAAAmwAAAAF5F3P0w9GtAAACfAAAAAwLhMDmAYWMgVEG1U0FIGCBgXBXAtfMH10000EEEEEECUBYln03TTTdNBDZopopYvrTTdNa325mImNg3TTPV9q3pmY0xoO6bv3r00y+IDGid/9aaaZTGMuj9mpu9Mpio1dXrr5HERTZSmqU36A3CumzN/9Robv/Xx4v9ijkSRSNLQhAWumap82WRSBUqXStV/YcS+XVLnSS+WLDroqArFkMEsAS+eWmrUzrO0oEmE40RlMZ5+ODIkAyKAGUwZ3mVKmcamcJnMW26MRPgUw6j+LkhyHGVGYjSUUKNpuJUQoOIAyDvEyG8S5yfK6dhZc0Tx1KI/gviKL6qvvFs1+bWtaz58uUNnryq6kt5RzOCkPWlVqVX2a/EEBUdU1KrXLf40GoiiFXK///qpoiDXrOgqDR38JB0bw7SoL+ZB9o1RCkQjQ2CBYZKd/+VJxZRRZlqSkKiws0WFxUyCwsKiMy7hUVFhIaCrNQsKkTIsLivwKKigsj8XYlwt/WKi2N4d//uQRCSAAjURNIHpMZBGYiaQPSYyAAABLAAAAAAAACWAAAAApUF/Mg+0aohSIRobBAsMlO//Kk4soosy1JSFRYWaLC4qZBYWFRGZdwqKiwkNBVmoWFSJkWFxX4FFRQWR+LsS4W/rFRb/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////VEFHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAU291bmRib3kuZGUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMjAwNGh0dHA6Ly93d3cuc291bmRib3kuZGUAAAAAAAAAACU=");  
+    snd.play();
+	score--;
+	return true;
+		}
+		
+		if (px[0] == tx[0] && px[1] == tx[1] && specialtime>0){
+			ghosts[m][6]=2000;
+		//console.log(px,tx);
+			//level[q][z]=2;
+			//context.drawImage(pacmaneat, pacmanxpos-16, pacmanypos);
+			//context.drawImage(pacmaneat, pacmanxpos-32, pacmanypos+32);
+			//context.drawImage(pacmaneat, pacmanxpos-48, pacmanypos-32);
+			//context.drawImage(pacmaneat, pacmanxpos-64, pacmanypos-16);
+			var snd = new Audio("data:audio/wav;base64,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qJrx4KOQjahZxWbcZgztj2c49nKmkId44S71j0c8eV9yDK6uPRzx5X18eDvjvQ6yKo9ZSS6l//8elePK/Lf//IInrOF/FvDoADYAGBMGb7FtErm5MXMlmPAJQVgWta7Zx2go+8xJ0UiCb8LHHdftWyLJE0QIAIsI+UbXu67dZMjmgDGCGl1H+vpF4NSDckSIkk7Vd+sxEhBQMRU8j/12UIRhzSaUdQ+rQU5kGeFxm+hb1oh6pWWmv3uvmReDl0UnvtapVaIzo1jZbf/pD6ElLqSX+rUmOQNpJFa/r+sa4e/pBlAABoAAAAA3CUgShLdGIxsY7AUABPRrgCABdDuQ5GC7DqPQCgbbJUAoRSUj+NIEig0YfyWUho1VBBBA//uQZB4ABZx5zfMakeAAAAmwAAAAF5F3P0w9GtAAACfAAAAAwLhMDmAYWMgVEG1U0FIGCBgXBXAtfMH10000EEEEEECUBYln03TTTdNBDZopopYvrTTdNa325mImNg3TTPV9q3pmY0xoO6bv3r00y+IDGid/9aaaZTGMuj9mpu9Mpio1dXrr5HERTZSmqU36A3CumzN/9Robv/Xx4v9ijkSRSNLQhAWumap82WRSBUqXStV/YcS+XVLnSS+WLDroqArFkMEsAS+eWmrUzrO0oEmE40RlMZ5+ODIkAyKAGUwZ3mVKmcamcJnMW26MRPgUw6j+LkhyHGVGYjSUUKNpuJUQoOIAyDvEyG8S5yfK6dhZc0Tx1KI/gviKL6qvvFs1+bWtaz58uUNnryq6kt5RzOCkPWlVqVX2a/EEBUdU1KrXLf40GoiiFXK///qpoiDXrOgqDR38JB0bw7SoL+ZB9o1RCkQjQ2CBYZKd/+VJxZRRZlqSkKiws0WFxUyCwsKiMy7hUVFhIaCrNQsKkTIsLivwKKigsj8XYlwt/WKi2N4d//uQRCSAAjURNIHpMZBGYiaQPSYyAAABLAAAAAAAACWAAAAApUF/Mg+0aohSIRobBAsMlO//Kk4soosy1JSFRYWaLC4qZBYWFRGZdwqKiwkNBVmoWFSJkWFxX4FFRQWR+LsS4W/rFRb/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////VEFHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAU291bmRib3kuZGUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMjAwNGh0dHA6Ly93d3cuc291bmRib3kuZGUAAAAAAAAAACU=");  
+    snd.play();
+	return true;
+		}
+		
+		//if (level[q][z]==5 || level[q][z]==6){
+			//level[q][z]=2;
+		//	special=1;
+		//	specialtime=500;
+		//	context.fillStyle = "blue";
+		//	context.fillRect(0, 0, canvas.width, canvas.height);
+			//context.drawImage(pacmaneat, pacmanxpos-16, pacmanypos);
+			//context.drawImage(pacmaneat, pacmanxpos-32, pacmanypos+32);
+			//context.drawImage(pacmaneat, pacmanxpos-48, pacmanypos-32);
+			//context.drawImage(pacmaneat, pacmanxpos-64, pacmanypos-16);
+		//	var snd = new Audio("data:audio/wav;base64,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qJrx4KOQjahZxWbcZgztj2c49nKmkId44S71j0c8eV9yDK6uPRzx5X18eDvjvQ6yKo9ZSS6l//8elePK/Lf//IInrOF/FvDoADYAGBMGb7FtErm5MXMlmPAJQVgWta7Zx2go+8xJ0UiCb8LHHdftWyLJE0QIAIsI+UbXu67dZMjmgDGCGl1H+vpF4NSDckSIkk7Vd+sxEhBQMRU8j/12UIRhzSaUdQ+rQU5kGeFxm+hb1oh6pWWmv3uvmReDl0UnvtapVaIzo1jZbf/pD6ElLqSX+rUmOQNpJFa/r+sa4e/pBlAABoAAAAA3CUgShLdGIxsY7AUABPRrgCABdDuQ5GC7DqPQCgbbJUAoRSUj+NIEig0YfyWUho1VBBBA//uQZB4ABZx5zfMakeAAAAmwAAAAF5F3P0w9GtAAACfAAAAAwLhMDmAYWMgVEG1U0FIGCBgXBXAtfMH10000EEEEEECUBYln03TTTdNBDZopopYvrTTdNa325mImNg3TTPV9q3pmY0xoO6bv3r00y+IDGid/9aaaZTGMuj9mpu9Mpio1dXrr5HERTZSmqU36A3CumzN/9Robv/Xx4v9ijkSRSNLQhAWumap82WRSBUqXStV/YcS+XVLnSS+WLDroqArFkMEsAS+eWmrUzrO0oEmE40RlMZ5+ODIkAyKAGUwZ3mVKmcamcJnMW26MRPgUw6j+LkhyHGVGYjSUUKNpuJUQoOIAyDvEyG8S5yfK6dhZc0Tx1KI/gviKL6qvvFs1+bWtaz58uUNnryq6kt5RzOCkPWlVqVX2a/EEBUdU1KrXLf40GoiiFXK///qpoiDXrOgqDR38JB0bw7SoL+ZB9o1RCkQjQ2CBYZKd/+VJxZRRZlqSkKiws0WFxUyCwsKiMy7hUVFhIaCrNQsKkTIsLivwKKigsj8XYlwt/WKi2N4d//uQRCSAAjURNIHpMZBGYiaQPSYyAAABLAAAAAAAACWAAAAApUF/Mg+0aohSIRobBAsMlO//Kk4soosy1JSFRYWaLC4qZBYWFRGZdwqKiwkNBVmoWFSJkWFxX4FFRQWR+LsS4W/rFRb/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////VEFHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAU291bmRib3kuZGUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMjAwNGh0dHA6Ly93d3cuc291bmRib3kuZGUAAAAAAAAAACU=");  
+   // snd.play();
+	//score++;
+	//	}
+
+}
+
+function ghostdot(m) {
+
+
+if (ghosts[m][6]>0){
+return false
+}
+	var z = 0;
+	var zr = 0;
+	var zl = 0;
+	var q = 0;
+	var qr = 0;
+	var ql = 0;
+
+		z = (ghosts[m][0])/32;
+		z = Math.round(z);
+		zr = (ghosts[m][0])/32;
+		zr = Math.ceil(zr);
+		q = (ghosts[m][1])/32;
+		q = Math.round(q);
+		qr = (ghosts[m][1])/32;
+		qr = Math.ceil(qr);
+		
+		if (level[q][z]==2 && Number.isInteger(ghosts[m][5]/78)==true && Math.random()*10<2){
+			level[q][z]=3;
+			
+		//console.log(Number.isInteger(ghosts[m][5]/30));
+			//context.drawImage(pacmaneat, pacmanxpos-16, pacmanypos);
+			//context.drawImage(pacmaneat, pacmanxpos-32, pacmanypos+32);
+			//context.drawImage(pacmaneat, pacmanxpos-48, pacmanypos-32);
+			//context.drawImage(pacmaneat, pacmanxpos-64, pacmanypos-16);
+			var snd = new Audio("data:audio/wav;base64,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qJrx4KOQjahZxWbcZgztj2c49nKmkId44S71j0c8eV9yDK6uPRzx5X18eDvjvQ6yKo9ZSS6l//8elePK/Lf//IInrOF/FvDoADYAGBMGb7FtErm5MXMlmPAJQVgWta7Zx2go+8xJ0UiCb8LHHdftWyLJE0QIAIsI+UbXu67dZMjmgDGCGl1H+vpF4NSDckSIkk7Vd+sxEhBQMRU8j/12UIRhzSaUdQ+rQU5kGeFxm+hb1oh6pWWmv3uvmReDl0UnvtapVaIzo1jZbf/pD6ElLqSX+rUmOQNpJFa/r+sa4e/pBlAABoAAAAA3CUgShLdGIxsY7AUABPRrgCABdDuQ5GC7DqPQCgbbJUAoRSUj+NIEig0YfyWUho1VBBBA//uQZB4ABZx5zfMakeAAAAmwAAAAF5F3P0w9GtAAACfAAAAAwLhMDmAYWMgVEG1U0FIGCBgXBXAtfMH10000EEEEEECUBYln03TTTdNBDZopopYvrTTdNa325mImNg3TTPV9q3pmY0xoO6bv3r00y+IDGid/9aaaZTGMuj9mpu9Mpio1dXrr5HERTZSmqU36A3CumzN/9Robv/Xx4v9ijkSRSNLQhAWumap82WRSBUqXStV/YcS+XVLnSS+WLDroqArFkMEsAS+eWmrUzrO0oEmE40RlMZ5+ODIkAyKAGUwZ3mVKmcamcJnMW26MRPgUw6j+LkhyHGVGYjSUUKNpuJUQoOIAyDvEyG8S5yfK6dhZc0Tx1KI/gviKL6qvvFs1+bWtaz58uUNnryq6kt5RzOCkPWlVqVX2a/EEBUdU1KrXLf40GoiiFXK///qpoiDXrOgqDR38JB0bw7SoL+ZB9o1RCkQjQ2CBYZKd/+VJxZRRZlqSkKiws0WFxUyCwsKiMy7hUVFhIaCrNQsKkTIsLivwKKigsj8XYlwt/WKi2N4d//uQRCSAAjURNIHpMZBGYiaQPSYyAAABLAAAAAAAACWAAAAApUF/Mg+0aohSIRobBAsMlO//Kk4soosy1JSFRYWaLC4qZBYWFRGZdwqKiwkNBVmoWFSJkWFxX4FFRQWR+LsS4W/rFRb/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////VEFHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAU291bmRib3kuZGUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMjAwNGh0dHA6Ly93d3cuc291bmRib3kuZGUAAAAAAAAAACU=");  
+    snd.play();
+		}
+		
+		if (Number.isInteger(ghosts[m][5]/133)==true && Math.random()*250<2){
+			level[q][z]=5;
+			
+		//console.log(Number.isInteger(ghosts[m][5]/30));
+			//context.drawImage(pacmaneat, pacmanxpos-16, pacmanypos);
+			//context.drawImage(pacmaneat, pacmanxpos-32, pacmanypos+32);
+			//context.drawImage(pacmaneat, pacmanxpos-48, pacmanypos-32);
+			//context.drawImage(pacmaneat, pacmanxpos-64, pacmanypos-16);
+			var snd = new Audio("data:audio/wav;base64,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qJrx4KOQjahZxWbcZgztj2c49nKmkId44S71j0c8eV9yDK6uPRzx5X18eDvjvQ6yKo9ZSS6l//8elePK/Lf//IInrOF/FvDoADYAGBMGb7FtErm5MXMlmPAJQVgWta7Zx2go+8xJ0UiCb8LHHdftWyLJE0QIAIsI+UbXu67dZMjmgDGCGl1H+vpF4NSDckSIkk7Vd+sxEhBQMRU8j/12UIRhzSaUdQ+rQU5kGeFxm+hb1oh6pWWmv3uvmReDl0UnvtapVaIzo1jZbf/pD6ElLqSX+rUmOQNpJFa/r+sa4e/pBlAABoAAAAA3CUgShLdGIxsY7AUABPRrgCABdDuQ5GC7DqPQCgbbJUAoRSUj+NIEig0YfyWUho1VBBBA//uQZB4ABZx5zfMakeAAAAmwAAAAF5F3P0w9GtAAACfAAAAAwLhMDmAYWMgVEG1U0FIGCBgXBXAtfMH10000EEEEEECUBYln03TTTdNBDZopopYvrTTdNa325mImNg3TTPV9q3pmY0xoO6bv3r00y+IDGid/9aaaZTGMuj9mpu9Mpio1dXrr5HERTZSmqU36A3CumzN/9Robv/Xx4v9ijkSRSNLQhAWumap82WRSBUqXStV/YcS+XVLnSS+WLDroqArFkMEsAS+eWmrUzrO0oEmE40RlMZ5+ODIkAyKAGUwZ3mVKmcamcJnMW26MRPgUw6j+LkhyHGVGYjSUUKNpuJUQoOIAyDvEyG8S5yfK6dhZc0Tx1KI/gviKL6qvvFs1+bWtaz58uUNnryq6kt5RzOCkPWlVqVX2a/EEBUdU1KrXLf40GoiiFXK///qpoiDXrOgqDR38JB0bw7SoL+ZB9o1RCkQjQ2CBYZKd/+VJxZRRZlqSkKiws0WFxUyCwsKiMy7hUVFhIaCrNQsKkTIsLivwKKigsj8XYlwt/WKi2N4d//uQRCSAAjURNIHpMZBGYiaQPSYyAAABLAAAAAAAACWAAAAApUF/Mg+0aohSIRobBAsMlO//Kk4soosy1JSFRYWaLC4qZBYWFRGZdwqKiwkNBVmoWFSJkWFxX4FFRQWR+LsS4W/rFRb/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////VEFHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAU291bmRib3kuZGUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMjAwNGh0dHA6Ly93d3cuc291bmRib3kuZGUAAAAAAAAAACU=");  
+    snd.play();
+		}
+		
+		ghosts[m][5]++;
+		
+		//if (level[q][z]==5 || level[q][z]==6){
+		//	level[q][z]=2;
+		//	special=1;
+		//	specialtime=500;
+		//	context.fillStyle = "blue";
+		//	context.fillRect(0, 0, canvas.width, canvas.height);
+			//context.drawImage(pacmaneat, pacmanxpos-16, pacmanypos);
+			//context.drawImage(pacmaneat, pacmanxpos-32, pacmanypos+32);
+			//context.drawImage(pacmaneat, pacmanxpos-48, pacmanypos-32);
+			//context.drawImage(pacmaneat, pacmanxpos-64, pacmanypos-16);
+		//	var snd = new Audio("data:audio/wav;base64,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qJrx4KOQjahZxWbcZgztj2c49nKmkId44S71j0c8eV9yDK6uPRzx5X18eDvjvQ6yKo9ZSS6l//8elePK/Lf//IInrOF/FvDoADYAGBMGb7FtErm5MXMlmPAJQVgWta7Zx2go+8xJ0UiCb8LHHdftWyLJE0QIAIsI+UbXu67dZMjmgDGCGl1H+vpF4NSDckSIkk7Vd+sxEhBQMRU8j/12UIRhzSaUdQ+rQU5kGeFxm+hb1oh6pWWmv3uvmReDl0UnvtapVaIzo1jZbf/pD6ElLqSX+rUmOQNpJFa/r+sa4e/pBlAABoAAAAA3CUgShLdGIxsY7AUABPRrgCABdDuQ5GC7DqPQCgbbJUAoRSUj+NIEig0YfyWUho1VBBBA//uQZB4ABZx5zfMakeAAAAmwAAAAF5F3P0w9GtAAACfAAAAAwLhMDmAYWMgVEG1U0FIGCBgXBXAtfMH10000EEEEEECUBYln03TTTdNBDZopopYvrTTdNa325mImNg3TTPV9q3pmY0xoO6bv3r00y+IDGid/9aaaZTGMuj9mpu9Mpio1dXrr5HERTZSmqU36A3CumzN/9Robv/Xx4v9ijkSRSNLQhAWumap82WRSBUqXStV/YcS+XVLnSS+WLDroqArFkMEsAS+eWmrUzrO0oEmE40RlMZ5+ODIkAyKAGUwZ3mVKmcamcJnMW26MRPgUw6j+LkhyHGVGYjSUUKNpuJUQoOIAyDvEyG8S5yfK6dhZc0Tx1KI/gviKL6qvvFs1+bWtaz58uUNnryq6kt5RzOCkPWlVqVX2a/EEBUdU1KrXLf40GoiiFXK///qpoiDXrOgqDR38JB0bw7SoL+ZB9o1RCkQjQ2CBYZKd/+VJxZRRZlqSkKiws0WFxUyCwsKiMy7hUVFhIaCrNQsKkTIsLivwKKigsj8XYlwt/WKi2N4d//uQRCSAAjURNIHpMZBGYiaQPSYyAAABLAAAAAAAACWAAAAApUF/Mg+0aohSIRobBAsMlO//Kk4soosy1JSFRYWaLC4qZBYWFRGZdwqKiwkNBVmoWFSJkWFxX4FFRQWR+LsS4W/rFRb/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////VEFHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAU291bmRib3kuZGUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMjAwNGh0dHA6Ly93d3cuc291bmRib3kuZGUAAAAAAAAAACU=");  
+    //snd.play();
+	//score++;
+	//	}
+
+}
+
+function ghostmove(m){
+
+	if (ghosts[m][2]==1) {
+		z = (ghosts[m][0]+16+pacspeed)/32;
+		z = Math.round(z);
+		zr = (ghosts[m][0])/32;
+		zr = Math.ceil(zr);
+		q = (ghosts[m][1]-16+pacspeed)/32;
+		q = Math.round(q);
+		qr = (ghosts[m][1]-pacspeed)/32;
+		qr = Math.ceil(qr);
+		if (level[q][z]==1 || level[qr][z]==1 || level[q][z]==4 || level[qr][z]==4){
+			ghostnewdirection(m, 2);
+			ghostmove(m);
+		}
+		else {
+		ghosts[m][0] += pacspeed;
+		}
+		
+	}
+	else if (ghosts[m][2]==-1) {
+	
+		z = (ghosts[m][0]-16-pacspeed)/32; ////-17 cause we check one pixel over to see what is there, where he will be moving to
+		z = Math.round(z);
+		zr = (ghosts[m][0])/32;
+		zr = Math.ceil(zr);
+		q = (ghosts[m][1]-16+pacspeed)/32;
+		q = Math.round(q);
+		qr = (ghosts[m][1]-pacspeed)/32;
+		qr = Math.ceil(qr);
+		if (level[q][z]==1 || level[qr][z]==1 || level[q][z]==4 || level[qr][z]==4){
+			ghostnewdirection(m, 2);
+			ghostmove(m);
+		}
+		else {
+		ghosts[m][0] -= pacspeed;
+		}
+		//console.log((pacmanypos-15)/32);
+	}
+	else if (ghosts[m][2]==2) {
+	
+		z = (ghosts[m][0]-16+pacspeed)/32;
+		z = Math.round(z);
+		zr = (ghosts[m][0]-pacspeed)/32;
+		zr = Math.ceil(zr);
+		q = (ghosts[m][1]-16-pacspeed)/32;
+		q = Math.round(q);
+		
+		if (level[q][z]==1 || level[q][zr]==1 || level[q][z]==4 || level[q][zr]==4){
+			ghostnewdirection(m, 2);
+			ghostmove(m);
+		}
+		else {
+			ghosts[m][1] -= pacspeed;
+		}
+	}
+	else if (ghosts[m][2]==-2) {
+	
+		z = (ghosts[m][0]-16+pacspeed)/32;
+		z = Math.round(z);
+		zr = (ghosts[m][0]-pacspeed)/32;
+		zr = Math.ceil(zr);
+		q = (ghosts[m][1]+16+pacspeed)/32;
+		q = Math.round(q);
+		
+		
+		if (level[q][z]==1 || level[q][zr]==1 || level[q][z]==4 || level[q][zr]==4){
+			ghostnewdirection(m, 2);
+			ghostmove(m);
+		}
+		else {
+		ghosts[m][1] += pacspeed;
+		}
+	}
+
+}
+
+function ghostchangedirection(m){
+
+	var t;
+
+		t= ghosts[m][2];
+		
+		
+		while (Math.abs(ghosts[m][2])==Math.abs(t) || ghosts[m][2]==0){
+	ghosts[m][2] = Math.floor(Math.random()*5)-2;
+	if (ghosts[m][2]!==0){
+		checkghostmove(m);
+	}
+	}
+
+}
+
+function ghostchosemove(m){
+
+var i=[];
+i=[];
+
+
+if (Number.isInteger(ghosts[m][0]/32)==false && Number.isInteger(ghosts[m][1]/32)==false){
+
+	return i=[0];
+	}
+
+		
+		z = (ghosts[m][0]+16+pacspeed)/32;
+		z = Math.round(z);
+		zr = (ghosts[m][0])/32;
+		zr = Math.ceil(zr);
+		q = (ghosts[m][1]-16+pacspeed)/32;
+		q = Math.round(q);
+		qr = (ghosts[m][1]-pacspeed)/32;
+		qr = Math.ceil(qr);
+		if (level[q][z]==1 || level[qr][z]==1 || level[q][z]==4 || level[qr][z]==4 || ghosts[m][2] ==1 || ghosts[m][2] ==-1){
+			//
+		}
+		else {
+			i.push(1);
+		//ghosts[m][0] += pacspeed;
+		}
+		
+	
+		z = (ghosts[m][0]-16-pacspeed)/32; ////-17 cause we check one pixel over to see what is there, where he will be moving to
+		z = Math.round(z);
+		zr = (ghosts[m][0])/32;
+		zr = Math.ceil(zr);
+		q = (ghosts[m][1]-16+pacspeed)/32;
+		q = Math.round(q);
+		qr = (ghosts[m][1]-pacspeed)/32;
+		qr = Math.ceil(qr);
+		if (level[q][z]==1 || level[qr][z]==1 || level[q][z]==4 || level[qr][z]==4  || ghosts[m][2] ==-1 || ghosts[m][2] ==1){
+			//i[1]=0;
+		}
+		else {
+			i.push(-1);
+		//ghosts[m][0] -= pacspeed;
+		}
+		//console.log((pacmanypos-15)/32);
+	
+		z = (ghosts[m][0]-16+pacspeed)/32;
+		z = Math.round(z);
+		zr = (ghosts[m][0]-pacspeed)/32;
+		zr = Math.ceil(zr);
+		q = (ghosts[m][1]-16-pacspeed)/32;
+		q = Math.round(q);
+		
+		if (level[q][z]==1 || level[q][zr]==1 || level[q][z]==4 || level[q][zr]==4  || ghosts[m][2] ==2 || ghosts[m][2] ==-2){
+			//i[2]=0;
+		}
+		else {
+			i.push(2);
+			//ghosts[m][1] -= pacspeed;
+		}
+	
+	
+		z = (ghosts[m][0]-16+pacspeed)/32;
+		z = Math.round(z);
+		zr = (ghosts[m][0]-pacspeed)/32;
+		zr = Math.ceil(zr);
+		q = (ghosts[m][1]+16+pacspeed)/32;
+		q = Math.round(q);
+		
+		
+		if (level[q][z]==1 || level[q][zr]==1 || level[q][z]==4 || level[q][zr]==4  || ghosts[m][2] ==-2 || ghosts[m][2] ==2){
+			//i[3]=0;
+		}
+		else {
+			i.push(-2);
+		//ghosts[m][1] += pacspeed;
+		}
+		
+		//console.log[i];
+		
+		return i;
+		
+		//console.log(i);
+	
+
+}
+
+function ghostnewdirection(m, t){
+
+var i=[];
+ i=[];
+
+		z = (ghosts[m][0]+16+pacspeed)/32;
+		z = Math.round(z);
+		zr = (ghosts[m][0])/32;
+		zr = Math.ceil(zr);
+		q = (ghosts[m][1]-16+pacspeed)/32;
+		q = Math.round(q);
+		qr = (ghosts[m][1]-pacspeed)/32;
+		qr = Math.ceil(qr);
+		
+		if (level[q][z]==1 || level[qr][z]==1 || level[q][z]==4 || level[qr][z]==4  || ghosts[m][2]==-1 || ghosts[m][2]==1){
+			//i=0;
+		}
+		else {
+			i.push(1);
+			}
+		//ghosts[m][0] += pacspeed;
+		
+		
+	
+		z = (ghosts[m][0]-16-pacspeed)/32; ////-17 cause we check one pixel over to see what is there, where he will be moving to
+		z = Math.round(z);
+		zr = (ghosts[m][0])/32;
+		zr = Math.ceil(zr);
+		q = (ghosts[m][1]-16+pacspeed)/32;
+		q = Math.round(q);
+		qr = (ghosts[m][1]-pacspeed)/32;
+		qr = Math.ceil(qr);
+		if (level[q][z]==1 || level[qr][z]==1 || level[q][z]==4 || level[qr][z]==4 || ghosts[m][2]==1 || ghosts[m][2]==-1){
+			//i=0;
+		}
+		else {
+			i.push(-1);
+		//ghosts[m][0] -= pacspeed;
+		}
+		//console.log((pacmanypos-15)/32);
+	
+		z = (ghosts[m][0]-16+pacspeed)/32;
+		z = Math.round(z);
+		zr = (ghosts[m][0]-pacspeed)/32;
+		zr = Math.ceil(zr);
+		q = (ghosts[m][1]-16-pacspeed)/32;
+		q = Math.round(q);
+		
+		if (level[q][z]==1 || level[q][zr]==1 || level[q][z]==4 || level[q][zr]==4 || ghosts[m][2]==2|| ghosts[m][2]==-2){
+			//i=0;
+		}
+		else {
+			i.push(2);
+			//ghosts[m][1] -= pacspeed;
+		}
+	
+	
+		z = (ghosts[m][0]-16+pacspeed)/32;
+		z = Math.round(z);
+		zr = (ghosts[m][0]-pacspeed)/32;
+		zr = Math.ceil(zr);
+		q = (ghosts[m][1]+16+pacspeed)/32;
+		q = Math.round(q);
+		
+		
+		if (level[q][z]==1 || level[q][zr]==1 || level[q][z]==4 || level[q][zr]==4 || ghosts[m][2]==-2 || ghosts[m][2]==2){
+			//i=0;
+		}
+		else {
+			i.push(-2);
+		//ghosts[m][1] += pacspeed;
+		}
+		
+		//console.log(i);
+		//console.log(i[(Math.floor(Math.random()*i.length))]);
+		ghosts[m][2]=i[(Math.floor(Math.random()*i.length))];
+		
+	
+
+}
+
+function checkghostmove(m){
+
+	if (ghosts[m][2]==1) {
+		z = (ghosts[m][0]+16+pacspeed)/32;
+		z = Math.round(z);
+		zr = (ghosts[m][0])/32;
+		zr = Math.ceil(zr);
+		q = (ghosts[m][1]-16+pacspeed)/32;
+		q = Math.round(q);
+		qr = (ghosts[m][1]-pacspeed)/32;
+		qr = Math.ceil(qr);
+		if (level[q][z]==1 || level[qr][z]==1 || level[q][z]==4 || level[qr][z]==4){
+			ghosts[m][2]=0;
+		}
+		else {
+		//ghosts[m][0] += pacspeed;
+		}
+		
+	}
+	else if (ghosts[m][2]==-1) {
+	
+		z = (ghosts[m][0]-16-pacspeed)/32; ////-17 cause we check one pixel over to see what is there, where he will be moving to
+		z = Math.round(z);
+		zr = (ghosts[m][0])/32;
+		zr = Math.ceil(zr);
+		q = (ghosts[m][1]-16+pacspeed)/32;
+		q = Math.round(q);
+		qr = (ghosts[m][1]-pacspeed)/32;
+		qr = Math.ceil(qr);
+		if (level[q][z]==1 || level[qr][z]==1 || level[q][z]==4 || level[qr][z]==4){
+			ghosts[m][2]=0;
+		}
+		else {
+		//ghosts[m][0] -= pacspeed;
+		}
+		//console.log((pacmanypos-15)/32);
+	}
+	else if (ghosts[m][2]==2) {
+	
+		z = (ghosts[m][0]-16+pacspeed)/32;
+		z = Math.round(z);
+		zr = (ghosts[m][0]-pacspeed)/32;
+		zr = Math.ceil(zr);
+		q = (ghosts[m][1]-16-pacspeed)/32;
+		q = Math.round(q);
+		
+		if (level[q][z]==1 || level[q][zr]==1 || level[q][z]==4 || level[q][zr]==4){
+			ghosts[m][2]=0;
+		}
+		else {
+			//ghosts[m][1] -= pacspeed;
+		}
+	}
+	else if (ghosts[m][2]==-2) {
+	
+		z = (ghosts[m][0]-16+pacspeed)/32;
+		z = Math.round(z);
+		zr = (ghosts[m][0]-pacspeed)/32;
+		zr = Math.ceil(zr);
+		q = (ghosts[m][1]+16+pacspeed)/32;
+		q = Math.round(q);
+		
+		
+		if (level[q][z]==1 || level[q][zr]==1 || level[q][z]==4 || level[q][zr]==4){
+			ghosts[m][2]=0;
+		}
+		else {
+		//ghosts[m][1] += pacspeed;
+		}
+	}
+
+}
+
+function ghostdraw(m){
+
+if (ghosts[m][6]>0){
+				
+				if (Number.isInteger(ghosts[m][6]/3)==false){
+				
+		if (ghosts[m][4]<21){
+		context.drawImage(ghostpic[ghosts[m][3]], ghosts[m][0], ghosts[m][1]);
+				console.log("hey")
+		}
+		else if (ghosts[m][4]<41){
+		context.drawImage(ghostpic[ghosts[m][3]+1], ghosts[m][0], ghosts[m][1]);
+		}
+		else{
+		ghosts[m][4]=0;
+		context.drawImage(ghostpic[ghosts[m][3]], ghosts[m][0], ghosts[m][1]);
+		}
+		
+				}
+			}
+		else{
+		if (ghosts[m][4]<21){
+		context.drawImage(ghostpic[ghosts[m][3]], ghosts[m][0], ghosts[m][1]);
+		}
+		else if (ghosts[m][4]<41){
+		context.drawImage(ghostpic[ghosts[m][3]+1], ghosts[m][0], ghosts[m][1]);
+		}
+		else{
+		ghosts[m][4]=0;
+		context.drawImage(ghostpic[ghosts[m][3]], ghosts[m][0], ghosts[m][1]);
+		}
+		}
+		
+		ghosts[m][4]++;
+
+
+}
+
+
+var colorchangeup=3;
+
+function colorchange(){
+
+
+colorchangeup++;
+
+
+//console.log(colorchangeup);
+
+
+if (colorchangeup>50){
+
+if (Math.random()*100<10){
+colorchangeup=0;
+return true;
+}
+
+return false
+}
+
+}
+
+
+
+		var frame=0;
+
+function drawpacman() {
+
+	if (pacmanmoving==0){
+	if (specialtime>0){
+			if (Math.random()*100>49){
+							
+context.translate(pacmanxpos+16,pacmanypos+16);
+context.rotate(90*pacrotate*Math.PI/180); 
+context.drawImage(pacmaneatthrob,-16,-16,32,32); //192,256
+context.rotate(-90*pacrotate*Math.PI/180); 
+context.translate(-pacmanxpos-16,-pacmanypos-16);
+			}
+						else {
+context.translate(pacmanxpos+16,pacmanypos+16);
+context.rotate(90*pacrotate*Math.PI/180); 
+context.drawImage(pacmaneat,-16,-16,32,32); //192,256
+context.rotate(-90*pacrotate*Math.PI/180); 
+context.translate(-pacmanxpos-16,-pacmanypos-16);
+						
+						}
+		}
+		else{
+context.translate(pacmanxpos+16,pacmanypos+16);
+context.rotate(90*pacrotate*Math.PI/180); 
+context.drawImage(pacmaneat,-16,-16,32,32); //192,256
+context.rotate(-90*pacrotate*Math.PI/180); 
+context.translate(-pacmanxpos-16,-pacmanypos-16);
+		}
+		return false;
+	}
+	
+	if (pacmanan < 20) {
+	
+		if (specialtime>0){
+			if (Math.random()*100>49){
+							
+context.translate(pacmanxpos+16,pacmanypos+16);
+context.rotate(90*pacrotate*Math.PI/180); 
+context.drawImage(pacmanthrob,-16,-16,32,32); //192,256
+context.rotate(-90*pacrotate*Math.PI/180); 
+context.translate(-pacmanxpos-16,-pacmanypos-16);
+						}
+						else {
+context.translate(pacmanxpos+16,pacmanypos+16);
+context.rotate(90*pacrotate*Math.PI/180); 
+context.drawImage(pacman,-16,-16,32,32); //192,256
+context.rotate(-90*pacrotate*Math.PI/180); 
+context.translate(-pacmanxpos-16,-pacmanypos-16);
+						
+						}
+		}
+		else{
+context.translate(pacmanxpos+16,pacmanypos+16);
+context.rotate(90*pacrotate*Math.PI/180); 
+context.drawImage(pacman,-16,-16,32,32); //192,256
+context.rotate(-90*pacrotate*Math.PI/180); 
+context.translate(-pacmanxpos-16,-pacmanypos-16);
+		}
+	}
+	else if (pacmanan > 19) {
+	
+	if (specialtime>0){
+			if (Math.random()*100>49){
+							
+context.translate(pacmanxpos+16,pacmanypos+16);
+context.rotate(90*pacrotate*Math.PI/180); 
+context.drawImage(pacmaneatthrob,-16,-16,32,32); //192,256
+context.rotate(-90*pacrotate*Math.PI/180); 
+context.translate(-pacmanxpos-16,-pacmanypos-16);
+						}
+						else {
+context.translate(pacmanxpos+16,pacmanypos+16);
+context.rotate(90*pacrotate*Math.PI/180); 
+context.drawImage(pacmaneat,-16,-16,32,32); //192,256
+context.rotate(-90*pacrotate*Math.PI/180); 
+context.translate(-pacmanxpos-16,-pacmanypos-16);
+						
+						}
+		}
+		else{
+context.translate(pacmanxpos+16,pacmanypos+16);
+context.rotate(90*pacrotate*Math.PI/180); 
+context.drawImage(pacmaneat,-16,-16,32,32); //192,256
+context.rotate(-90*pacrotate*Math.PI/180); 
+context.translate(-pacmanxpos-16,-pacmanypos-16);
+		}
+		
+	}
+	if (pacmanan == 40) {
+context.translate(pacmanxpos+16,pacmanypos+16);
+context.rotate(90*pacrotate*Math.PI/180); 
+context.drawImage(pacmaneat,-16,-16,32,32); //192,256
+context.rotate(-90*pacrotate*Math.PI/180); 
+context.translate(-pacmanxpos-16,-pacmanypos-16);
+		pacmanan = 0;
+	}
+	
+		pacmanan++;
+
+}
+
+var score =-1;
+
+
+
+function checkdot() {
+
+	var z = 0;
+	var zr = 0;
+	var zl = 0;
+	var q = 0;
+	var qr = 0;
+	var ql = 0;
+
+		z = (pacmanxpos)/32;
+		z = Math.round(z);
+		zr = (pacmanxpos)/32;
+		zr = Math.ceil(zr);
+		q = (pacmanypos)/32;
+		q = Math.round(q);
+		qr = (pacmanypos)/32;
+		qr = Math.ceil(qr);
+		if (level[q][z]==3){
+			level[q][z]=2;
+			//context.drawImage(pacmaneat, pacmanxpos-16, pacmanypos);
+			//context.drawImage(pacmaneat, pacmanxpos-32, pacmanypos+32);
+			//context.drawImage(pacmaneat, pacmanxpos-48, pacmanypos-32);
+			//context.drawImage(pacmaneat, pacmanxpos-64, pacmanypos-16);
+			var snd = new Audio("data:audio/wav;base64,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qJrx4KOQjahZxWbcZgztj2c49nKmkId44S71j0c8eV9yDK6uPRzx5X18eDvjvQ6yKo9ZSS6l//8elePK/Lf//IInrOF/FvDoADYAGBMGb7FtErm5MXMlmPAJQVgWta7Zx2go+8xJ0UiCb8LHHdftWyLJE0QIAIsI+UbXu67dZMjmgDGCGl1H+vpF4NSDckSIkk7Vd+sxEhBQMRU8j/12UIRhzSaUdQ+rQU5kGeFxm+hb1oh6pWWmv3uvmReDl0UnvtapVaIzo1jZbf/pD6ElLqSX+rUmOQNpJFa/r+sa4e/pBlAABoAAAAA3CUgShLdGIxsY7AUABPRrgCABdDuQ5GC7DqPQCgbbJUAoRSUj+NIEig0YfyWUho1VBBBA//uQZB4ABZx5zfMakeAAAAmwAAAAF5F3P0w9GtAAACfAAAAAwLhMDmAYWMgVEG1U0FIGCBgXBXAtfMH10000EEEEEECUBYln03TTTdNBDZopopYvrTTdNa325mImNg3TTPV9q3pmY0xoO6bv3r00y+IDGid/9aaaZTGMuj9mpu9Mpio1dXrr5HERTZSmqU36A3CumzN/9Robv/Xx4v9ijkSRSNLQhAWumap82WRSBUqXStV/YcS+XVLnSS+WLDroqArFkMEsAS+eWmrUzrO0oEmE40RlMZ5+ODIkAyKAGUwZ3mVKmcamcJnMW26MRPgUw6j+LkhyHGVGYjSUUKNpuJUQoOIAyDvEyG8S5yfK6dhZc0Tx1KI/gviKL6qvvFs1+bWtaz58uUNnryq6kt5RzOCkPWlVqVX2a/EEBUdU1KrXLf40GoiiFXK///qpoiDXrOgqDR38JB0bw7SoL+ZB9o1RCkQjQ2CBYZKd/+VJxZRRZlqSkKiws0WFxUyCwsKiMy7hUVFhIaCrNQsKkTIsLivwKKigsj8XYlwt/WKi2N4d//uQRCSAAjURNIHpMZBGYiaQPSYyAAABLAAAAAAAACWAAAAApUF/Mg+0aohSIRobBAsMlO//Kk4soosy1JSFRYWaLC4qZBYWFRGZdwqKiwkNBVmoWFSJkWFxX4FFRQWR+LsS4W/rFRb/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////VEFHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAU291bmRib3kuZGUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMjAwNGh0dHA6Ly93d3cuc291bmRib3kuZGUAAAAAAAAAACU=");  
+    snd.play();
+	score++;
+		}
+		
+		if (level[q][z]==5 || level[q][z]==6){
+			level[q][z]=2;
+			special=1;
+			specialtime=2000;
+			context.fillStyle = "blue";
+			context.fillRect(0, 0, canvas.width, canvas.height);
+			//context.drawImage(pacmaneat, pacmanxpos-16, pacmanypos);
+			//context.drawImage(pacmaneat, pacmanxpos-32, pacmanypos+32);
+			//context.drawImage(pacmaneat, pacmanxpos-48, pacmanypos-32);
+			//context.drawImage(pacmaneat, pacmanxpos-64, pacmanypos-16);
+			var snd = new Audio("data:audio/wav;base64,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qJrx4KOQjahZxWbcZgztj2c49nKmkId44S71j0c8eV9yDK6uPRzx5X18eDvjvQ6yKo9ZSS6l//8elePK/Lf//IInrOF/FvDoADYAGBMGb7FtErm5MXMlmPAJQVgWta7Zx2go+8xJ0UiCb8LHHdftWyLJE0QIAIsI+UbXu67dZMjmgDGCGl1H+vpF4NSDckSIkk7Vd+sxEhBQMRU8j/12UIRhzSaUdQ+rQU5kGeFxm+hb1oh6pWWmv3uvmReDl0UnvtapVaIzo1jZbf/pD6ElLqSX+rUmOQNpJFa/r+sa4e/pBlAABoAAAAA3CUgShLdGIxsY7AUABPRrgCABdDuQ5GC7DqPQCgbbJUAoRSUj+NIEig0YfyWUho1VBBBA//uQZB4ABZx5zfMakeAAAAmwAAAAF5F3P0w9GtAAACfAAAAAwLhMDmAYWMgVEG1U0FIGCBgXBXAtfMH10000EEEEEECUBYln03TTTdNBDZopopYvrTTdNa325mImNg3TTPV9q3pmY0xoO6bv3r00y+IDGid/9aaaZTGMuj9mpu9Mpio1dXrr5HERTZSmqU36A3CumzN/9Robv/Xx4v9ijkSRSNLQhAWumap82WRSBUqXStV/YcS+XVLnSS+WLDroqArFkMEsAS+eWmrUzrO0oEmE40RlMZ5+ODIkAyKAGUwZ3mVKmcamcJnMW26MRPgUw6j+LkhyHGVGYjSUUKNpuJUQoOIAyDvEyG8S5yfK6dhZc0Tx1KI/gviKL6qvvFs1+bWtaz58uUNnryq6kt5RzOCkPWlVqVX2a/EEBUdU1KrXLf40GoiiFXK///qpoiDXrOgqDR38JB0bw7SoL+ZB9o1RCkQjQ2CBYZKd/+VJxZRRZlqSkKiws0WFxUyCwsKiMy7hUVFhIaCrNQsKkTIsLivwKKigsj8XYlwt/WKi2N4d//uQRCSAAjURNIHpMZBGYiaQPSYyAAABLAAAAAAAACWAAAAApUF/Mg+0aohSIRobBAsMlO//Kk4soosy1JSFRYWaLC4qZBYWFRGZdwqKiwkNBVmoWFSJkWFxX4FFRQWR+LsS4W/rFRb/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////VEFHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAU291bmRib3kuZGUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMjAwNGh0dHA6Ly93d3cuc291bmRib3kuZGUAAAAAAAAAACU=");  
+    snd.play();
+	score++;
+		}
+
+}
+
+
+function collision(m) {
+
+
+
+	var z = 0;
+	var zr = 0;
+	var zl = 0;
+	var q = 0;
+	var qr = 0;
+	var ql = 0;
+	
+
+	
+
+	if (pacmanmoving==1) {
+		z = (pacmanxpos+16+pacspeed)/32;
+		z = Math.round(z);
+		zr = (pacmanxpos)/32;
+		zr = Math.ceil(zr);
+		q = (pacmanypos-16+pacspeed)/32;
+		q = Math.round(q);
+		qr = (pacmanypos-pacspeed)/32;
+		qr = Math.ceil(qr);
+		if (level[q][z]==1 || level[qr][z]==1 || level[q][z]==4 || level[qr][z]==4){
+			pacmanmoving=0;
+		}
+		
+		pacrotate=4;
+		pacmanxpos += pacspeed*m;
+		
+		
+		//change.log();
+	}
+	else if (pacmanmoving==2) {
+	
+		z = (pacmanxpos-17-pacspeed)/32; ////-17 cause we check one pixel over to see what is there, where he will be moving to
+		z = Math.round(z);
+		zr = (pacmanxpos)/32;
+		zr = Math.ceil(zr);
+		q = (pacmanypos-16+pacspeed)/32;
+		q = Math.round(q);
+		qr = (pacmanypos-pacspeed)/32;
+		qr = Math.ceil(qr);
+		if (level[q][z]==1 || level[qr][z]==1){
+			pacmanmoving=0;
+		}
+		else if (level[q][z]==4){
+			pacmanmoving=0;
+		}
+		else if (level[qr][z]==4){
+			pacmanmoving=0;
+		}
+		
+		pacrotate=2;
+		pacmanxpos -= pacspeed*m;
+		
+		//console.log((pacmanypos-15)/32);
+	}
+	else if (pacmanmoving==3) {
+	
+		z = (pacmanxpos-16+pacspeed)/32;
+		z = Math.round(z);
+		zr = (pacmanxpos-pacspeed)/32;
+		zr = Math.ceil(zr);
+		q = (pacmanypos-17-pacspeed)/32;
+		q = Math.round(q);
+		
+		if (level[q][z]==1 || level[q][zr]==1){
+			pacmanmoving=0;
+		}
+		else if (level[q][z]==4){
+			pacmanmoving=0;
+		}
+		else if (level[q][zr]==4){
+			pacmanmoving=0;
+		}
+		
+		pacrotate=3;
+			pacmanypos -= pacspeed*m;
+		
+	}
+	else if (pacmanmoving==4) {
+	
+		z = (pacmanxpos-16+pacspeed)/32;
+		z = Math.round(z);
+		zr = (pacmanxpos-pacspeed)/32;
+		zr = Math.ceil(zr);
+		q = (pacmanypos+16+pacspeed)/32;
+		q = Math.round(q);
+		
+		//console.log(level[q][z]);
+		//console.log(level[q][zr]);
+		
+		if (level[q][z]==1 || level[q][zr]==1){
+			pacmanmoving=0;
+		}
+		else if (level[q][z]==4){
+			pacmanmoving=0;
+		}
+		else if (level[q][zr]==4){
+			pacmanmoving=0;
+		}
+		
+		pacrotate=1;
+		pacmanypos += pacspeed*m;
+		
+	}
+	
+	//console.log(restart);
+	//console.log(pacmanxpos);
+	//console.log(z);
+	//console.log(z);
+	//console.log(zl);
+	//console.log(q);
+	//console.log(ql);
+	//console.log(qr);
+}
+
+function restartlev(l) {
+
+if (l==1) {
+ level=[
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1],
+        [1, 3, 4, 3, 3, 3, 3, 3, 3, 3, 3, 4, 3, 1],
+        [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1],
+        [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1],
+        [1, 3, 3, 3, 3, 3, 4, 4, 3, 3, 3, 3, 3, 1],
+        [1, 3, 3, 3, 3, 3, 4, 4, 3, 3, 3, 3, 3, 1],
+        [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1],
+        [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1],
+        [1, 3, 4, 3, 3, 3, 3, 3, 3, 3, 3, 4, 3, 1],
+        [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1],
+		[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+		[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+		[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+		[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+		[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+		[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+     ];
+ pacmanxpos = 320-96-32;
+ pacmanypos = 320-64;
+	 }
+else if (l==2) {
+ level=[
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1,1,1,1],
+        [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,3,3,3,1],
+        [1, 3, 4, 4, 4, 4, 3, 3, 3, 3, 3, 4, 3, 1,1,1,3,1],
+        [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1,1,1,3,1],
+        [1, 3, 4, 4, 4, 4, 3, 3, 3, 3, 3, 3, 3, 1,1,1,3,1],
+        [1, 3, 4, 3, 3, 3, 3, 4, 3, 3, 3, 3, 3, 1,1,1,3,1],
+        [1, 3, 3, 3, 4, 4, 4, 4, 3, 3, 3, 3, 3, 1,1,1,3,1],
+        [1, 3, 4, 3, 4, 3, 3, 3, 3, 3, 3, 3, 3, 1,1,1,3,1],
+        [1, 3, 4, 3, 4, 3, 3, 3, 3, 3, 3, 3, 3, 1,1,1,3,1],
+        [1, 3, 4, 3, 3, 3, 3, 3, 3, 3, 3, 4, 3, 1,1,1,3,1],
+        [1, 3, 3, 3, 4, 3, 3, 3, 3, 3, 3, 3, 3, 1,1,1,3,1],
+		[1, 3, 4, 3, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1,1,1,3,1],
+		[1, 3, 4, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1,1,3,1],
+		[1, 3, 4, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1,1,3,1],
+		[1, 3, 4, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1,1,3,1],
+		[1, 3, 4, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1,1,3,1],
+		[1, 3, 4, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1,1,3,1],
+		[1, 3, 4, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1,1,3,1],
+		[1, 3, 4, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1,1,3,1],
+		[1, 3, 4, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1,1,3,1],
+		[1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,3,3,3,1],
+		[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1,1,1,1],
+     ];
+ pacmanxpos = 32;
+ pacmanypos = 32;
+	 }
+	 else if (l==3) {
+ level=[
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1],
+        [1, 3, 4, 3, 3, 3, 3, 3, 3, 3, 3, 4, 3, 1],
+        [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1],
+        [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1],
+        [1, 3, 3, 3, 3, 3, 4, 4, 3, 3, 3, 3, 3, 1],
+        [1, 3, 3, 3, 3, 3, 4, 4, 3, 3, 3, 3, 3, 1],
+        [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1],
+        [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1],
+        [1, 3, 4, 3, 3, 3, 3, 3, 3, 3, 3, 4, 3, 1],
+        [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1],
+		[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+		[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+		[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+		[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+		[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+		[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+     ];
+ pacmanxpos = 320-96-32;
+ pacmanypos = 320-64;
+	 }
+else if (l==4) {
+ level=[
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1,1,1,1],
+        [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,3,3,3,1],
+        [1, 3, 4, 4, 4, 4, 3, 4, 3, 4, 3, 3, 3, 4,4,4,3,1],
+        [1, 3, 4, 4, 3, 3, 3, 4, 3, 4, 3, 4, 4, 4,3,3,3,1],
+        [1, 3, 3, 3, 4, 4, 3, 3, 3, 3, 3, 3, 4, 4,3,4,3,1],
+        [1, 3, 4, 3, 3, 3, 3, 4, 3, 3, 3, 3, 3, 3,3,4,3,1],
+        [1, 3, 3, 3, 4, 4, 4, 4, 3, 3, 3, 3, 3, 4,4,4,3,1],
+        [1, 3, 4, 3, 4, 3, 3, 3, 3, 3, 3, 3, 3, 4,4,4,3,1],
+        [1, 3, 4, 3, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3,3,3,3,1],
+        [1, 3, 4, 3, 3, 3, 3, 3, 3, 3, 3, 4, 3, 4,4,4,3,1],
+        [1, 3, 3, 3, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3,3,3,3,1],
+		[1, 3, 4, 3, 4, 1, 1, 1, 1, 1, 1, 1, 3, 4,4,4,3,1],
+		[1, 3, 4, 3, 1, 1, 1, 1, 1, 1, 1, 1, 3, 4,4,4,3,1],
+		[1, 3, 4, 3, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3,3,3,3,1],
+		[1, 3, 4, 3, 1, 1, 1, 1, 1, 1, 1, 1, 3, 4,4,4,3,1],
+		[1, 3, 4, 3, 1, 1, 1, 1, 1, 1, 1, 1, 3, 4,4,4,3,1],
+		[1, 3, 4, 3, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3,3,3,3,1],
+		[1, 3, 4, 3, 1, 1, 1, 1, 1, 1, 1, 1, 3, 4,4,4,3,1],
+		[1, 3, 4, 3, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3,3,3,3,1],
+		[1, 3, 4, 3, 1, 1, 1, 1, 1, 1, 1, 1, 3, 4,4,4,3,1],
+		[1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,3,3,3,1],
+		[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1,1,1,1],
+     ];
+ pacmanxpos = 32;
+ pacmanypos = 32;
+	 }
+	 else if (l==5) {
+ level=[
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1,1,1,1,1],
+        [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,3,3,3,1,1],
+        [1, 5, 4, 4, 4, 4, 3, 4, 3, 4, 3, 4, 3, 4,4,4,3,1,1],
+        [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,3,3,3,1,1],
+        [1, 3, 4, 4, 4, 4, 3, 4, 3, 4, 3, 4, 3, 4,4,4,3,1,1],
+        [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,3,3,3,1,1],
+        [1, 3, 4, 4, 4, 4, 3, 4, 3, 4, 3, 4, 3, 4,4,4,3,1,1],
+        [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,3,3,3,1,1],
+        [1, 3, 4, 4, 4, 4, 3, 4, 3, 4, 3, 4, 3, 4,4,4,3,1,1],
+        [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,3,3,3,1,1],
+        [1, 3, 4, 4, 4, 4, 3, 4, 3, 4, 3, 4, 3, 4,4,4,3,1,1],
+        [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,3,3,3,1,1],
+        [1, 3, 4, 4, 4, 4, 3, 4, 3, 4, 3, 4, 3, 4,4,4,3,1,1],
+        [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,3,3,3,1,1],
+        [1, 3, 4, 4, 4, 4, 3, 4, 5, 4, 3, 4, 3, 4,4,4,3,1,1],
+        [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,3,3,3,1,1],
+        [1, 3, 4, 4, 4, 4, 3, 4, 3, 4, 3, 4, 3, 4,4,4,3,1,1],
+        [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,3,3,3,1,1],
+        [1, 3, 4, 4, 4, 4, 3, 4, 3, 4, 3, 4, 3, 4,4,4,3,1,1],
+        [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,3,3,3,1,1],
+        [1, 3, 4, 4, 4, 4, 3, 4, 3, 4, 3, 4, 3, 4,4,4,3,1,1],
+        [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,3,3,3,1,1],
+        [1, 3, 4, 4, 4, 4, 3, 4, 3, 4, 3, 4, 3, 4,4,4,5,1,1],
+        [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,3,3,3,1,1],
+		[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1,1,1,1,1],
+     ];
+	 for (var v = 0; v < level.length; v++) {
+		for (var h = 0; h < level[0].length; h++) {
+			if (level[v][h] == 3) {
+					bestlowestdots++;
+				}
+			}
+		}
+		
+ pacmanxpos = 32;
+ pacmanypos = 32;
+ 
+ ghosts = [[320, 288, 1, 0, 0, Math.floor(Math.random()*1000), 0], // xpos, ypos, direction, color, animation, dotdrop, hurt
+		  [320, 320, 1, 0, 15, Math.floor(Math.random()*1000), 0],
+		  [96, 96, 1, 0, 30, Math.floor(Math.random()*1000), 0],
+		  [320, 320, 1, 0, 45, Math.floor(Math.random()*1000), 0],
+		  ];
+		  
+ pacrotate=4;
+	 }
+}
+
+
+	var buttonintervals = 1113;
+
+
+function buttonpressed(){
+
+	m=0; 
+	
+	//console.log(buttonintervals);
+	
+	if (buttonintervals<(30*pacmanspeed)){
+	
+	if (Number.isInteger(pacmanxpos/32)==true && Number.isInteger(pacmanypos/32)==true){
+	
+	if (pacsmove==1){
+		z = (pacmanxpos+16+pacspeed)/32;
+		z = Math.round(z);
+		zr = (pacmanxpos-pacspeed)/32;
+		zr = Math.ceil(zr);
+		q = (pacmanypos-16+pacspeed)/32;
+		q = Math.round(q);
+		qr = (pacmanypos-pacspeed)/32;
+		qr = Math.ceil(qr);
+		if (level[q][z]==1 || level[qr][z]==1){
+			//return false;
+		}
+		else if (level[q][z]==4){
+			//return false;
+		}
+		else if (level[qr][z]==4){
+			//return false;
+		}
+		else {
+			pacmanmoving=1;
+		}
+		}
+		
+		if (pacsmove==2){
+		z = (pacmanxpos-16-pacspeed)/32;
+		z = Math.round(z);
+		zr = (pacmanxpos+pacspeed)/32;
+		zr = Math.ceil(zr);
+		q = (pacmanypos-16+pacspeed)/32;
+		q = Math.round(q);
+		qr = (pacmanypos-0)/32;
+		qr = Math.ceil(qr);
+		
+		//console.log(pacsmove);
+		
+		
+		if (level[q][z]==1 || level[qr][z]==1){
+			//pacmanmoving=0;
+		}
+		else if (level[q][z]==4){
+			//pacmanmoving=0;
+		}
+		else if (level[qr][z]==4){
+			//pacmanmoving=0;
+		}
+		else {
+			pacmanmoving=2;
+		}
+		}
+		
+		
+		if (pacsmove==3){
+		z = (pacmanxpos-16+pacspeed)/32;
+		z = Math.round(z);
+		zr = (pacmanxpos-0)/32;
+		zr = Math.ceil(zr);
+		q = (pacmanypos-16-pacspeed)/32;
+		q = Math.round(q);
+		
+		//console.log(pacmanmoving);
+		
+		if (level[q][z]==1 || level[q][zr]==1  ){
+			//return false;
+		}
+		else if (level[q][z]==4){
+			//return false;
+		}
+		else if (level[q][zr]==4){
+			//return false;
+		}
+		else {
+			pacmanmoving=3;
+		}
+		}
+
+		if (pacsmove==4){
+		z = (pacmanxpos-16+pacspeed)/32;
+		z = Math.round(z);
+		zr = (pacmanxpos-pacspeed)/32;
+		zr = Math.ceil(zr);
+		q = (pacmanypos+16+pacspeed)/32;
+		q = Math.round(q);
+		
+		if (level[q][z]==1 || level[q][zr]==1){
+			//return false;
+		}
+		else if (level[q][z]==4){
+			//return false;
+		}
+		else if (level[q][zr]==4){
+			//return false;
+		}
+		else {
+			pacmanmoving=4;
+		}
+		}
+		}
+		buttonintervals++;
+		
+		
+		}
+	
+
+}
+
+function checkcollision(m){
+
+
+		if (m==1){
+		z = (pacmanxpos+16+pacspeed)/32;
+		z = Math.round(z);
+		zr = (pacmanxpos-pacspeed)/32;
+		zr = Math.ceil(zr);
+		q = (pacmanypos-16+pacspeed)/32;
+		q = Math.round(q);
+		qr = (pacmanypos-pacspeed)/32;
+		qr = Math.ceil(qr);
+		if (level[q][z]==1){
+			return false;
+		}
+		else if (level[q][z]==4){
+			return false;
+		}
+		else if (level[qr][z]==4){
+			return false;
+		}
+		else {
+		return true;
+		}
+		}
+		
+		if (m==2){
+		z = (pacmanxpos-16-pacspeed)/32;
+		z = Math.round(z);
+		zr = (pacmanxpos-pacspeed)/32;
+		zr = Math.ceil(zr);
+		q = (pacmanypos-16+pacspeed)/32;
+		q = Math.round(q);
+		qr = (pacmanypos-pacspeed)/32;
+		qr = Math.ceil(qr);
+		
+		//console.log(pacmanypos);
+		
+		
+		if (level[q][z]==1){
+			return false;
+		}
+		else if (level[q][z]==4){
+			return false;
+		}
+		else if (level[qr][z]==4){
+			return false;
+		}
+		else {
+			return true;
+		}
+		}
+		
+		
+		if (m==3){
+		z = (pacmanxpos-16+pacspeed)/32;
+		z = Math.round(z);
+		zr = (pacmanxpos-pacspeed)/32;
+		zr = Math.ceil(zr);
+		q = (pacmanypos-16-pacspeed)/32;
+		q = Math.round(q);
+		
+		console.log(pacmanmoving);
+		
+		if (level[q][z]==1){
+			return false;
+		}
+		else if (level[q][z]==4){
+			return false;
+		}
+		else if (level[q][zr]==4){
+			return false;
+		}
+		else {
+		return true;
+		}
+		}
+
+		if (m==4){
+		z = (pacmanxpos-16+pacspeed)/32;
+		z = Math.round(z);
+		zr = (pacmanxpos+pacspeed)/32;
+		zr = Math.ceil(zr);
+		q = (pacmanypos+16+pacspeed)/32;
+		q = Math.round(q);
+		
+		if (level[q][z]==1){
+			return false;
+		}
+		else if (level[q][z]==4){
+			return false;
+		}
+		else if (level[q][zr]==4){
+			return false;
+		}
+		else {
+			return true;
+		}
+		}
+	}
+		
+
+
+document.addEventListener("touchstart", touchstart);
+document.addEventListener("touchend", touchend);
+document.addEventListener("touchmove", touchmove);
+
+var touchmove;
+
+
+function touchmove(e){
+
+e.preventDefault();
+
+}
+
+function touchstart(e){
+
+if (e.touches){
+
+	var touchy = e.touches[0].clientY;
+	var touchx = e.touches[0].clientX;
+	
+	if (touchx>600 && touchy>700){
+	pacsmove=1;
+	buttonintervals=0;
+	touchmove=1;
+	//console.log("hey");
+	}
+	
+	if (touchx<385 && touchy>790){
+	pacsmove=2;
+	buttonintervals=0;
+	touchmove=1;
+	}
+	
+	if (touchx>370 && touchx<810 && touchy>620 && touchy<840){
+	pacsmove=3;
+	buttonintervals=0;
+	touchmove=1;
+	}
+	
+	if (touchx>370 && touchx<600 && touchy>850){
+	pacsmove=4;
+	buttonintervals=0;
+	touchmove=1;
+	}
+	
+	 if (e.touches.length == 5){
+		restartlev(5);
+	 }
+	 
+	 if (e.touches.length == 4){
+		pacmanspeed += 1;
+	 }
+	 
+	 if (e.touches.length == 3){
+		pacmanspeed -= 1;
+	 }
+
+e.preventDefault();
+	//console.log(e.touches[0].clientX);
+	//console.log(e.touches[0].clientY);
+}
+}
+
+function touchend(e){
+
+if (e.touches){
+	buttonintervals=0;
+	
+	touchmove=0;
+	
+e.preventDefault();
+	
+}
+
+}
+
+function keyDownHandler(e){
+	if (e.keyCode == 39 || e.keyCode == 68){
+		pacsmove=1;
+		buttonintervals=0;
+	}
+	else if (e.keyCode == 37 || e.keyCode == 65){
+		pacsmove=2;
+		buttonintervals=0;
+	}
+	else if (e.keyCode == 38 || e.keyCode == 87){
+		pacsmove=3;
+		buttonintervals=0;
+	}
+	else if (e.keyCode == 40 || e.keyCode == 83){
+		pacsmove=4;
+		buttonintervals=0;
+	}
+	else if (e.keyCode == 49){
+		restartlev(1);
+	}
+	else if (e.keyCode == 50){
+		restartlev(2);
+	}
+	else if (e.keyCode == 51){
+		restartlev(3);
+	}
+	else if (e.keyCode == 52){
+		restartlev(4);
+	}
+	else if (e.keyCode == 107){
+		pacmanspeed += 1;
+		Math.trunc(pacspeed);
+	}
+	else if (e.keyCode == 109){
+		pacmanspeed -= 1;
+	}
+	if (e.keyCode == 53){
+		restartlev(5);
+	}
+}
+
+function keyUpHandler(e){
+	if (e.keyCode == 39){
+		rightPressed = false;
+	}
+	else if (e.keyCode == 37){
+		leftPressed = false;
+	}
+	else if (e.keyCode == 38){
+		upPressed = false;
+	}
+	else if (e.keyCode == 40){
+		downPressed = false;
+	}
+	else if (e.keyCode == 68){
+		rightPressed = false;
+	}
+	else if (e.keyCode == 65){
+		leftPressed = false;
+	}
+	else if (e.keyCode == 87){
+		upPressed = false;
+	}
+	else if (e.keyCode == 83){
+		downPressed = false;
+	}
+}
+
+
+
+setInterval(drawLevel, 16);
+
+debugger;
+
+
+</script>
+
+</body>
+</html>
